@@ -32,24 +32,24 @@ npm run dev
 - `npm run lint` - Run ESLint
 - `npm run preview` - Preview production build
 
-## What technologies are used for this project?
+## Technologies Used
 
 This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Vite** - Fast build tool and development server
+- **TypeScript** - Type-safe JavaScript
+- **React** - UI framework
+- **shadcn/ui** - Modern UI components
+- **Tailwind CSS** - Utility-first CSS framework
+- **Wagmi** - React hooks for Ethereum
+- **RainbowKit** - Wallet connection UI
+- **Stargate Protocol** - Cross-chain bridge infrastructure
 
-## How can I deploy this project?
+## Features
 
-Simply open [Lovable](https://lovable.dev/projects/5b7c454f-6939-43a0-b068-98f769941164) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- Cross-chain USDC transfers between EDU Chain and major blockchains
+- Support for Ethereum, Polygon, Arbitrum, Optimism, and Base
+- Modern wallet connection with RainbowKit
+- Responsive design optimized for all devices
+- Real-time transaction tracking
+- Low-fee transfers powered by Stargate Protocol
