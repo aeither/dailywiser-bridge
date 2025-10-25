@@ -1,5 +1,7 @@
-// src/components/BlockchainChat.tsx
+'use client';
+
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import { useState } from 'react';
 
 export default function Chat() {
@@ -11,11 +13,11 @@ export default function Chat() {
     status,
     error
   } = useChat({
-    onFinish: ({ message, isError }) => {
+    transport: new DefaultChatTransport({
+      api: '/api/chat',
+    }),
+    onFinish: ({ message }) => {
       console.log('✅ Chat finished:', message);
-      if (isError) {
-        console.error('⚠️ Finished with error');
-      }
     },
     onError: (error) => {
       console.error('❌ Chat error:', error);
@@ -25,7 +27,8 @@ export default function Chat() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-    sendMessage({ role: 'user', parts: [{ type: 'text', text: input }] });
+
+    sendMessage({ text: input });
     setInput('');
   };
 
@@ -51,44 +54,96 @@ export default function Chat() {
             {/* Render message parts */}
             {message.parts.map((part, idx) => (
               <div key={idx}>
+                {/* Text parts */}
                 {part.type === 'text' && (
                   <div className="whitespace-pre-wrap">{part.text}</div>
                 )}
 
-                {part.type.startsWith('tool-') && 'state' in part && (
+                {/* Dynamic tool calls */}
+                {part.type === 'dynamic-tool' && (
                   <div className="mt-3 p-3 bg-white rounded border">
                     <div className="font-mono text-sm font-semibold text-blue-600">
-                      🔧 {part.type.replace('tool-', '')}
+                      🔧 {part.toolName || 'Tool Call'}
                     </div>
-
-                    {part.state === 'input-streaming' && (
-                      <div className="text-xs text-yellow-600 mt-1">
-                        ⏳ Streaming input...
-                      </div>
-                    )}
-
-                    {part.state === 'input-available' && 'input' in part && (
+                    
+                    {'args' in part && (
                       <div className="text-xs text-gray-500 mt-1">
-                        Arguments: {JSON.stringify(part.input, null, 2)}
+                        Arguments: <pre className="inline">{JSON.stringify(part.args, null, 2)}</pre>
                       </div>
                     )}
 
-                    {(part.state === 'streaming' || part.state === 'done' || part.state === 'output-available') && 'output' in part && (
+                    {'result' in part && part.result && (
                       <details className="mt-2">
                         <summary className="cursor-pointer text-sm text-green-600">
                           ✅ View Result
                         </summary>
                         <pre className="mt-2 text-xs bg-gray-50 p-2 rounded overflow-auto max-h-40">
-                          {JSON.stringify(part.output, null, 2)}
+                          {JSON.stringify(part.result, null, 2)}
                         </pre>
                       </details>
                     )}
+                  </div>
+                )}
 
-                    {part.state === 'output-error' && 'errorText' in part && (
-                      <div className="text-xs text-red-600 mt-1">
-                        ❌ Error: {part.errorText}
-                      </div>
+                {/* Reasoning parts */}
+                {part.type === 'reasoning' && (
+                  <details className="mt-2 p-3 bg-purple-50 rounded border border-purple-200">
+                    <summary className="cursor-pointer text-sm font-semibold text-purple-700">
+                      🧠 Reasoning Process
+                    </summary>
+                    <pre className="mt-2 text-xs whitespace-pre-wrap">
+                      {part.text}
+                    </pre>
+                  </details>
+                )}
+
+                {/* File attachments */}
+                {part.type === 'file' && (
+                  <div className="mt-2">
+                    {part.mediaType?.startsWith('image/') ? (
+                      <img 
+                        src={part.url} 
+                        alt={part.filename || 'Attachment'} 
+                        className="max-w-sm rounded border"
+                      />
+                    ) : (
+                      <a 
+                        href={part.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        📎 {part.filename || 'Download file'}
+                      </a>
                     )}
+                  </div>
+                )}
+
+                {/* Source URLs */}
+                {part.type === 'source-url' && (
+                  <div className="mt-2 text-sm">
+                    <a 
+                      href={part.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      🔗 {part.title || new URL(part.url).hostname}
+                    </a>
+                  </div>
+                )}
+
+                {/* Source documents */}
+                {part.type === 'source-document' && (
+                  <div className="mt-2 text-sm text-gray-600">
+                    📄 {part.title || `Document ${part.sourceId}`}
+                  </div>
+                )}
+
+                {/* Step start */}
+                {part.type === 'step-start' && (
+                  <div className="mt-2 text-xs text-gray-500 italic">
+                    ⚙️ Starting step...
                   </div>
                 )}
               </div>
@@ -101,6 +156,13 @@ export default function Chat() {
             ❌ Error: {error.message}
           </div>
         )}
+
+        {isLoading && (
+          <div className="p-4 bg-gray-50 rounded-lg animate-pulse">
+            <div className="font-semibold mb-2">🤖 AI</div>
+            <div className="text-gray-500">Thinking...</div>
+          </div>
+        )}
       </div>
 
       {/* Input Form */}
@@ -108,14 +170,14 @@ export default function Chat() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about blockchain data (addresses, tokens, NFTs, transactions)..."
-          disabled={isLoading}
+          placeholder="Ask about blockchain data..."
+          disabled={status !== 'ready'}
           className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button 
           type="submit" 
-          disabled={isLoading}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={status !== 'ready'}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
           {isLoading ? '⏳ Querying...' : '📤 Send'}
         </button>

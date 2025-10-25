@@ -1,47 +1,51 @@
-import { streamText } from 'ai';
+import { streamText, convertToModelMessages } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { experimental_createMCPClient as createMCPClient } from 'ai';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import type { MCPTransport, UIMessage } from 'ai';
 
-// Use Node.js runtime
 export const runtime = 'nodejs';
-export const maxDuration = 60; // Max execution time in seconds
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   let mcpClient;
   
   try {
-    const { messages } = await req.json();
+    const { messages }: { messages: UIMessage[] } = await req.json();
 
-    // Create HTTP transport for Blockscout MCP
+    console.log('📥 Received messages:', messages);
+
+    // Create MCP client
     const httpTransport = new StreamableHTTPClientTransport(
       new URL('https://mcp.blockscout.com/mcp')
     );
 
-    // Create MCP client
     mcpClient = await createMCPClient({
-      transport: httpTransport,
+      transport: httpTransport as any as MCPTransport,
     });
 
-    // Get tools from Blockscout MCP server
     const tools = await mcpClient.tools();
-    
-    console.log(`✅ Connected to Blockscout MCP with ${Object.keys(tools).length} tools`);
+    console.log(`✅ Connected with ${Object.keys(tools).length} tools`);
 
-    // AI SDK 5.0 streamText with tools
+    // Convert UI messages to model messages
+    const modelMessages = convertToModelMessages(messages);
+
+    // Stream with tools
     const result = streamText({
       model: openai('gpt-4o'),
       tools,
-      messages,
-      onFinish: async ({ finishReason }) => {
-        console.log('Stream finished:', { finishReason });
+      messages: modelMessages,
+      toolChoice: 'auto',
+      onFinish: ({ finishReason }) => {
+        console.log('Stream finished:', finishReason);
       },
     });
 
-    return result.toTextStreamResponse();
+    // ✅ Use toUIMessageStreamResponse() for latest version
+    return result.toUIMessageStreamResponse();
     
   } catch (error) {
-    console.error('❌ Blockscout MCP Error:', error);
+    console.error('❌ Error:', error);
     
     return new Response(
       JSON.stringify({ 
@@ -54,11 +58,9 @@ export async function POST(req: Request) {
       }
     );
   } finally {
-    // Clean up MCP client connection
     if (mcpClient) {
       try {
         await mcpClient.close();
-        console.log('🔌 Blockscout MCP client closed');
       } catch (closeError) {
         console.error('Error closing MCP client:', closeError);
       }

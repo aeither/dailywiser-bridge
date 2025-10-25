@@ -53,3 +53,26 @@ This project is built with:
 - Responsive design optimized for all devices
 - Real-time transaction tracking
 - Low-fee transfers powered by Stargate Protocol
+
+## MCP Tools
+
+📋 Available tools: [
+  '__unlock_blockchain_analysis__',
+  'get_block_info',
+  'get_latest_block',
+  'get_address_by_ens_name',
+  'get_transactions_by_address',
+  'get_token_transfers_by_address',
+  'lookup_token_by_symbol',
+  'get_contract_abi',
+  'inspect_contract_code',
+  'read_contract',
+  'get_address_info',
+  'get_tokens_by_address',
+  'transaction_summary',
+  'nft_tokens_by_address',
+  'get_transaction_info',
+  'get_transaction_logs',
+  'get_chains_list',
+  'direct_api_call'
+]
