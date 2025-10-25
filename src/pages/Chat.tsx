@@ -65,21 +65,27 @@ export default function Chat() {
                     <div className="font-mono text-sm font-semibold text-blue-600">
                       🔧 {part.toolName || 'Tool Call'}
                     </div>
-                    
-                    {'args' in part && (
+
+                    {'input' in part && part.input && (
                       <div className="text-xs text-gray-500 mt-1">
-                        Arguments: <pre className="inline">{JSON.stringify(part.args, null, 2)}</pre>
+                        Arguments: <pre className="inline">{JSON.stringify(part.input, null, 2)}</pre>
                       </div>
                     )}
 
-                    {'result' in part && part.result && (
-                      <details className="mt-2">
+                    {'output' in part && part.output && (
+                      <details className="mt-2" open>
                         <summary className="cursor-pointer text-sm text-green-600">
                           ✅ View Result
                         </summary>
-                        <pre className="mt-2 text-xs bg-gray-50 p-2 rounded overflow-auto max-h-40">
-                          {JSON.stringify(part.result, null, 2)}
-                        </pre>
+                        <div className="mt-2 text-sm bg-gray-50 p-2 rounded overflow-auto max-h-40">
+                          {(part.output as any).content?.map((contentItem: any, contentIdx: number) => (
+                            <div key={contentIdx}>
+                              {contentItem.type === 'text' && (
+                                <pre className="text-xs whitespace-pre-wrap">{contentItem.text}</pre>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </details>
                     )}
                   </div>

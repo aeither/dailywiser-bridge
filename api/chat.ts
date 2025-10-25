@@ -35,15 +35,35 @@ export async function POST(req: Request) {
       tools,
       messages: modelMessages,
       toolChoice: 'auto',
-      onFinish: ({ finishReason }) => {
+      onFinish: async ({ finishReason }) => {
         console.log('✅ Stream finished:', finishReason);
+        
+        // Close MCP client AFTER streaming completes
+        if (mcpClient) {
+          try {
+            await mcpClient.close();
+            console.log('🔌 MCP client closed');
+          } catch (closeError) {
+            console.error('❌ Error closing MCP client:', closeError);
+          }
+        }
       },
     });
 
-    // Use stream response
+    // Return stream response (client still open)
     return result.toUIMessageStreamResponse();
+    
   } catch (error) {
     console.error('❌ Error:', error);
+
+    // Only close on error before streaming starts
+    if (mcpClient) {
+      try {
+        await mcpClient.close();
+      } catch (closeError) {
+        console.error('Error closing MCP client:', closeError);
+      }
+    }
 
     return new Response(
       JSON.stringify({
@@ -52,13 +72,6 @@ export async function POST(req: Request) {
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
-  } finally {
-    if (mcpClient) {
-      try {
-        await mcpClient.close();
-      } catch (closeError) {
-        console.error('Error closing MCP client:', closeError);
-      }
-    }
   }
+  // Remove finally block - cleanup happens in onFinish
 }
