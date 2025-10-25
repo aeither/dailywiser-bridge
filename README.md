@@ -9,6 +9,8 @@
 
 *AI-powered cross-chain USDC bridge with real-time blockchain intelligence*
 
+https://bridge.dailywiser.xyz/
+
 ---
 
 ## Description
