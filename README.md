@@ -1,5 +1,10 @@
 # DailyBridge
 
+<br />
+<div align="center">
+    <img src="https://github.com/user-attachments/assets/4570bc9f-7835-44b8-a894-ad5be8e94b35" alt="Logo" width="600">
+</div>
+
 **Bridge Smarter with AI**
 
 *AI-powered cross-chain USDC bridge with real-time blockchain intelligence*
