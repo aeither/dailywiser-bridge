@@ -1,4 +1,4 @@
-import { streamText, convertToModelMessages, gateway } from 'ai';
+import { streamText, convertToModelMessages, gateway, stepCountIs } from 'ai';
 import { experimental_createMCPClient as createMCPClient } from 'ai';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import type { MCPTransport, UIMessage } from 'ai';
@@ -13,7 +13,6 @@ export async function POST(req: Request) {
     const { messages }: { messages: UIMessage[] } = await req.json();
     console.log('📥 Received messages:', messages);
 
-    // Create MCP client (ENS tool available)
     const httpTransport = new StreamableHTTPClientTransport(
       new URL('https://mcp.blockscout.com/mcp')
     );
@@ -24,21 +23,20 @@ export async function POST(req: Request) {
 
     const tools = await mcpClient.tools();
     console.log(`✅ Connected with ${Object.keys(tools).length} tools`);
-    console.log('📋 Available tools:', Object.keys(tools));
 
-    // Convert UI to model messages
     const modelMessages = convertToModelMessages(messages);
 
-    // Stream via Gemini on AI Gateway
+    // ✅ Updated for AI SDK v5
     const result = streamText({
       model: gateway('google/gemini-2.5-flash'),
       tools,
       messages: modelMessages,
       toolChoice: 'auto',
+      stopWhen: stepCountIs(5), // 🔥 Use stopWhen instead of maxSteps
+      system: 'You are a helpful blockchain assistant. When using tools to answer questions, always provide clear, human-friendly explanations of the results.',
       onFinish: async ({ finishReason }) => {
         console.log('✅ Stream finished:', finishReason);
-        
-        // Close MCP client AFTER streaming completes
+
         if (mcpClient) {
           try {
             await mcpClient.close();
@@ -50,13 +48,11 @@ export async function POST(req: Request) {
       },
     });
 
-    // Return stream response (client still open)
     return result.toUIMessageStreamResponse();
-    
+
   } catch (error) {
     console.error('❌ Error:', error);
 
-    // Only close on error before streaming starts
     if (mcpClient) {
       try {
         await mcpClient.close();
@@ -73,5 +69,4 @@ export async function POST(req: Request) {
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
-  // Remove finally block - cleanup happens in onFinish
 }
