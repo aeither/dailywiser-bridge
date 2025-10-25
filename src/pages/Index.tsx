@@ -1,6 +1,7 @@
 import { Header } from '@/components/bridge/Header';
 import { BridgeCard } from '@/components/bridge/BridgeCard';
 import { ArrowRight } from 'lucide-react';
+import FloatingChat from '@/components/FloatingChat';
 
 const Index = () => {
   return (
@@ -13,6 +14,9 @@ const Index = () => {
             <h1 className="text-5xl md:text-6xl font-bold text-foreground">
               Bridge USDC on EDU Chain
             </h1>
+            <p className="text-lg text-primary font-semibold">
+              Bridge Smarter with AI
+            </p>
             <p className="text-xl text-muted-foreground max-w-xl mx-auto">
               Transfer USDC in and out of EDU Chain seamlessly. Connect EDU Chain to Ethereum, Polygon, Arbitrum, Optimism, and Base with low fees.
             </p>
@@ -40,8 +44,10 @@ const Index = () => {
       </main>
 
       <footer className="py-6 text-center text-sm text-muted-foreground border-t border-border">
-        <p>Dailywiser Bridge • Powered by Stargate Protocol • EDU Chain USDC bridging</p>
+        <p>DailyBridge • Powered by Stargate Protocol • EDU Chain USDC bridging</p>
       </footer>
+
+      <FloatingChat />
     </div>
   );
 };

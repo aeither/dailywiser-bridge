@@ -25,7 +25,7 @@ export function Header() {
             <Rocket className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
           </div>
           <h1 className="text-base sm:text-xl md:text-2xl font-bold text-primary whitespace-nowrap">
-            Dailywiser Bridge
+            DailyBridge
           </h1>
         </div>
         <div className="flex items-center gap-2">
