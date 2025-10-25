@@ -3,6 +3,8 @@
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function Chat() {
   const [input, setInput] = useState('');
@@ -56,7 +58,55 @@ export default function Chat() {
               <div key={idx}>
                 {/* Text parts */}
                 {part.type === 'text' && (
-                  <div className="whitespace-pre-wrap">{part.text}</div>
+                  <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-pre:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        code: ({ node, inline, className, children, ...props }: any) => {
+                          return inline ? (
+                            <code className="bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs font-mono" {...props}>
+                              {children}
+                            </code>
+                          ) : (
+                            <code className="block bg-gray-200 dark:bg-gray-700 p-3 rounded text-sm font-mono overflow-x-auto" {...props}>
+                              {children}
+                            </code>
+                          );
+                        },
+                        a: ({ node, children, ...props }: any) => (
+                          <a className="text-blue-600 dark:text-blue-400 hover:underline font-medium" target="_blank" rel="noopener noreferrer" {...props}>
+                            {children}
+                          </a>
+                        ),
+                        ul: ({ node, children, ...props }: any) => (
+                          <ul className="list-disc list-inside space-y-1" {...props}>
+                            {children}
+                          </ul>
+                        ),
+                        ol: ({ node, children, ...props }: any) => (
+                          <ol className="list-decimal list-inside space-y-1" {...props}>
+                            {children}
+                          </ol>
+                        ),
+                        blockquote: ({ node, children, ...props }: any) => (
+                          <blockquote className="border-l-4 border-blue-500 pl-3 italic text-gray-600 dark:text-gray-400" {...props}>
+                            {children}
+                          </blockquote>
+                        ),
+                        h1: ({ node, children, ...props }: any) => (
+                          <h1 className="text-xl font-bold mt-4 mb-2" {...props}>{children}</h1>
+                        ),
+                        h2: ({ node, children, ...props }: any) => (
+                          <h2 className="text-lg font-bold mt-3 mb-2" {...props}>{children}</h2>
+                        ),
+                        h3: ({ node, children, ...props }: any) => (
+                          <h3 className="text-base font-bold mt-2 mb-1" {...props}>{children}</h3>
+                        ),
+                      }}
+                    >
+                      {part.text}
+                    </ReactMarkdown>
+                  </div>
                 )}
 
                 {/* Dynamic tool calls */}

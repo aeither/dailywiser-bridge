@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function FloatingChat() {
   const [input, setInput] = useState('');
@@ -90,7 +92,55 @@ export default function FloatingChat() {
                     <div key={idx}>
                       {/* Text parts */}
                       {part.type === 'text' && (
-                        <div className="text-sm whitespace-pre-wrap">{part.text}</div>
+                        <div className="text-sm prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-pre:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              code: ({ node, inline, className, children, ...props }: any) => {
+                                return inline ? (
+                                  <code className="bg-background/80 dark:bg-background/60 px-1.5 py-0.5 rounded text-xs font-mono border" {...props}>
+                                    {children}
+                                  </code>
+                                ) : (
+                                  <code className="block bg-background/80 dark:bg-background/60 p-2 rounded text-xs font-mono overflow-x-auto border" {...props}>
+                                    {children}
+                                  </code>
+                                );
+                              },
+                              a: ({ node, children, ...props }: any) => (
+                                <a className="text-primary hover:underline font-medium" target="_blank" rel="noopener noreferrer" {...props}>
+                                  {children}
+                                </a>
+                              ),
+                              ul: ({ node, children, ...props }: any) => (
+                                <ul className="list-disc list-inside space-y-1" {...props}>
+                                  {children}
+                                </ul>
+                              ),
+                              ol: ({ node, children, ...props }: any) => (
+                                <ol className="list-decimal list-inside space-y-1" {...props}>
+                                  {children}
+                                </ol>
+                              ),
+                              blockquote: ({ node, children, ...props }: any) => (
+                                <blockquote className="border-l-4 border-primary/50 pl-3 italic text-muted-foreground" {...props}>
+                                  {children}
+                                </blockquote>
+                              ),
+                              h1: ({ node, children, ...props }: any) => (
+                                <h1 className="text-lg font-bold mt-3 mb-2" {...props}>{children}</h1>
+                              ),
+                              h2: ({ node, children, ...props }: any) => (
+                                <h2 className="text-base font-bold mt-3 mb-2" {...props}>{children}</h2>
+                              ),
+                              h3: ({ node, children, ...props }: any) => (
+                                <h3 className="text-sm font-bold mt-2 mb-1" {...props}>{children}</h3>
+                              ),
+                            }}
+                          >
+                            {part.text}
+                          </ReactMarkdown>
+                        </div>
                       )}
 
                       {/* Dynamic tool calls */}

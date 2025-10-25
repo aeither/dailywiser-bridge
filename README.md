@@ -263,9 +263,3 @@ The AI assistant has access to 18 blockchain analysis tools:
 - `get_transaction_logs` - Retrieve event logs
 - `get_chains_list` - List available networks
 - `direct_api_call` - Custom Blockscout API queries
-
----
-
-## License
-
-MIT
