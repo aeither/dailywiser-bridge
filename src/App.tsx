@@ -9,6 +9,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { NotificationProvider, TransactionPopupProvider } from '@blockscout/app-sdk';
 import { config } from './config/wagmi';
 import Index from "./pages/Index";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/chat" element={<Chat />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
