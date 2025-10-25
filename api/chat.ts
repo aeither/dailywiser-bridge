@@ -1,7 +1,8 @@
-import { streamText, convertToModelMessages, gateway, stepCountIs } from 'ai';
+import { streamText, convertToModelMessages, stepCountIs } from 'ai';
 import { experimental_createMCPClient as createMCPClient } from 'ai';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import type { MCPTransport, UIMessage } from 'ai';
+import { groq } from '@ai-sdk/groq';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
 
     // ✅ Updated for AI SDK v5
     const result = streamText({
-      model: gateway('google/gemini-2.5-flash'),
+      model: groq('moonshotai/kimi-k2-instruct'),
       tools,
       messages: modelMessages,
       toolChoice: 'auto',
