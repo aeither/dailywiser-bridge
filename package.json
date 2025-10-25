@@ -45,6 +45,8 @@
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@rainbow-me/rainbowkit": "^2.2.8",
+    "@reown/appkit": "^1.8.11",
+    "@reown/appkit-adapter-wagmi": "^1.8.11",
     "@tanstack/react-query": "^5.83.0",
     "@vercel/node": "^5.5.0",
     "ai": "^5.0.78",
